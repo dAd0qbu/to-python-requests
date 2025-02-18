@@ -37,6 +37,7 @@ public class CodeGenerator {
         List<Map<String, Object>> requests = new ArrayList<>();
         for (HttpRequestResponse requestResponse : selectedMessages) {
             Request request = new Request(requestResponse.request());
+//            api.logging().logToOutput("[DEBUG] " + requestResponse.request().parameters());
             requests.add(request.toMap());
         }
         context.put("requests", requests);
@@ -115,12 +116,12 @@ public class CodeGenerator {
     }
 
     private String handleLoops(String template, Map<String, Object> context) {
-        Pattern pattern = Pattern.compile("\\{%\\s*for\\s+(\\S+)\\s+in\\s+(\\S+)\\s*%\\}([\\s\\S]+)\\{%\\s*%\\}");
+        Pattern pattern = Pattern.compile("\\{%\\s*for\\s+(\\S+)\\s+in\\s+(\\S+)\\s*%\\}([\\s\\S]+?)\\{%\\s*%\\}");
         Matcher matcher = pattern.matcher(template);
         StringBuilder listLoopContent = new StringBuilder();
-        int index = 0;
 
         while (matcher.find()) {
+            int index = 0;
             String loopVariable = matcher.group(1);
             String loopList = matcher.group(2);
             String loopContent = matcher.group(3);
