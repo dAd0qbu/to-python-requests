@@ -5,8 +5,11 @@ import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,6 +39,7 @@ public class CodeGenerator {
         this.template = handleLoops(template, context);
         this.template = handleVariables(this.template, context);
         api.logging().logToOutput(template);
+        copyToClipboard(template);
     }
 
     private void loadTemplate() {
@@ -123,5 +127,9 @@ public class CodeGenerator {
         }
         matcher.appendTail(listLoopContent);
         return listLoopContent.toString();
+    }
+
+    private void copyToClipboard(String text) {
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
     }
 }
