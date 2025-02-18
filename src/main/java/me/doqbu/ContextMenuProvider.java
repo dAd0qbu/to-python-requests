@@ -21,7 +21,7 @@ public class ContextMenuProvider implements ContextMenuItemsProvider {
 
     @Override
     public List<Component> provideMenuItems(ContextMenuEvent event) {
-        if (event.isFromTool(ToolType.LOGGER, ToolType.PROXY, ToolType.REPEATER, ToolType.TARGET)) {
+        if (event.isFromTool(ToolType.LOGGER, ToolType.PROXY, ToolType.REPEATER, ToolType.TARGET, ToolType.INTRUDER)) {
             List<Component> menuItemsList = new ArrayList<>();
             JMenuItem retrieveRequestItem = new JMenuItem("Convert to Python requests");
 
