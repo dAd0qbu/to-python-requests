@@ -42,10 +42,17 @@ public class Request {
     private String formatData(HttpRequest request) {
         if (request.body().length() < 1) return null;
 
-        if (request.contentType() == ContentType.JSON) return rawBody;
-        if (request.contentType() != ContentType.URL_ENCODED) return "\"" + CodeGenerator.escapeString(rawBody) + "\"";
+        ContentType contentType = request.contentType();
+        if (contentType != ContentType.URL_ENCODED && contentType != ContentType.JSON)
+            return "\"" + CodeGenerator.escapeString(rawBody) + "\"";
 
-        List<ParsedHttpParameter> parameters = request.parameters(HttpParameterType.BODY);
+
+        List<ParsedHttpParameter> parameters;
+        if (contentType == ContentType.URL_ENCODED) {
+            parameters = request.parameters(HttpParameterType.URL);
+        } else {
+            parameters = request.parameters(HttpParameterType.JSON);
+        }
         Map<String, Object> data = new HashMap<String, Object>() {
             @Override
             public String toString() {
