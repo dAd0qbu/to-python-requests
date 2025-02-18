@@ -41,7 +41,7 @@ public class Request {
 
     private String formatData(HttpRequest request) {
         if (request.body().length() < 1) return null;
-        if (request.contentType() != ContentType.URL_ENCODED) return rawBody;
+        if (request.contentType() != ContentType.URL_ENCODED) return "\"" + rawBody + "\"";
 
         List<ParsedHttpParameter> parameters = request.parameters(HttpParameterType.BODY);
         Map<String, Object> data = new HashMap<String, Object>() {
