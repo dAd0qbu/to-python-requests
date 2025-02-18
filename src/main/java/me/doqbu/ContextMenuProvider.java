@@ -9,6 +9,7 @@ import burp.api.montoya.ui.contextmenu.ContextMenuItemsProvider;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ContextMenuProvider implements ContextMenuItemsProvider {
@@ -31,6 +32,7 @@ public class ContextMenuProvider implements ContextMenuItemsProvider {
                 selectedMessages = List.of(event.messageEditorRequestResponse().get().requestResponse());
             } else {
                 selectedMessages = event.selectedRequestResponses();
+                Collections.reverse(selectedMessages);
             }
 
             List<HttpRequestResponse> finalSelectedMessages = selectedMessages;
