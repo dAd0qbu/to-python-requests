@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
@@ -15,19 +16,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CodeGenerator {
-    private MontoyaApi api;
-    private List<HttpRequestResponse> selectedMessages;
+    private final MontoyaApi api;
     private String template;
-    private Map<String, Object> context = new HashMap<>();
+    private final Map<String, Object> context = new HashMap<>();
+    private static final String[] escapeCharacters = new String[0x100];
+
+    static {
+        for (int i = 0x00; i <= 0xFF; i++) escapeCharacters[i] = String.format("\\x%02x", i);
+        for (int i = 0x20; i < 0x80; i++) escapeCharacters[i] = String.valueOf((char) i);
+        escapeCharacters['\n'] = "\\n";
+        escapeCharacters['\r'] = "\\r";
+        escapeCharacters['\t'] = "\\t";
+        escapeCharacters['"'] = "\\\"";
+        escapeCharacters['\\'] = "\\\\";
+    }
 
     public CodeGenerator(MontoyaApi api, List<HttpRequestResponse> selectedMessages) {
         this.api = api;
-        this.selectedMessages = selectedMessages;
 
         List<Map<String, Object>> requests = new ArrayList<>();
         for (HttpRequestResponse requestResponse : selectedMessages) {
             Request request = new Request(requestResponse.request());
-            api.logging().logToOutput(requestResponse.request().parameters().toString());
             requests.add(request.toMap());
         }
         context.put("requests", requests);
@@ -38,6 +47,7 @@ public class CodeGenerator {
     public void generate() {
         this.template = handleLoops(template, context);
         this.template = handleVariables(this.template, context);
+
         api.logging().logToOutput(template);
         copyToClipboard(template);
     }
@@ -62,7 +72,7 @@ public class CodeGenerator {
             return json.toString();
         } else if (object == null) return "None";
 
-        return object.toString();
+        return escapeString(object.toString());
     }
 
     @Nullable
@@ -70,8 +80,12 @@ public class CodeGenerator {
         String[] keys = variableName.split("\\.", 2);
 
         Object keyVariable = context.getOrDefault(keys[0], null);
-        // api.logging().logToOutput("[DEBUG] Map Variable: " + keys[0] + " ( " + Arrays.toString(keys) + ") = " + keyVariable);
-        if (keyVariable == null || keys.length == 1 || !(keyVariable instanceof Map)) return formatValue(keyVariable);
+//         api.logging().logToOutput("[DEBUG] Map Variable: " + keys[0] + " ( " + Arrays.toString(keys) + ") = " + keyVariable);
+        if (keyVariable == null || keys.length == 1 || !(keyVariable instanceof Map)) {
+            // Skip data variable because it's already handled
+            if (keyVariable != null && keys[0].equals("data")) return keyVariable.toString();
+            return formatValue(keyVariable);
+        }
 
         Map<String, Object> newContext = new HashMap<>(context);
         newContext.putAll((Map<String, Object>) keyVariable);
@@ -131,5 +145,13 @@ public class CodeGenerator {
 
     private void copyToClipboard(String text) {
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+    }
+
+    public static String escapeString(String string) {
+        StringBuilder escapedString = new StringBuilder();
+        for (char c : string.toCharArray()) {
+            escapedString.append(escapeCharacters[c]);
+        }
+        return escapedString.toString();
     }
 }

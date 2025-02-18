@@ -13,7 +13,7 @@ public class Main implements BurpExtension {
     public void initialize(MontoyaApi api) {
         TEMPLATE_PATH = Paths.get("").toAbsolutePath() + "/template.py";
 
-        api.extension().setName("to-python-requests");
+        api.extension().setName("To python requests");
         api.logging().logToOutput("Enabled to-python-requests");
 
         createTemplateFile(api);
