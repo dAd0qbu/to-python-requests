@@ -5,6 +5,7 @@ import burp.api.montoya.core.ToolType;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.ui.contextmenu.ContextMenuEvent;
 import burp.api.montoya.ui.contextmenu.ContextMenuItemsProvider;
+import me.doqbu.template.Template;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,8 +38,8 @@ public class ContextMenuProvider implements ContextMenuItemsProvider {
 
             List<HttpRequestResponse> finalSelectedMessages = selectedMessages;
             retrieveRequestItem.addActionListener(e -> {
-                CodeGenerator codeGenerator = new CodeGenerator(api, finalSelectedMessages);
-                codeGenerator.generate();
+                Template template = new Template(api, finalSelectedMessages);
+                template.generate();
             });
             menuItemsList.add(retrieveRequestItem);
 

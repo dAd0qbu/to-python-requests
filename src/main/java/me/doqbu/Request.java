@@ -5,6 +5,7 @@ import burp.api.montoya.http.message.HttpHeader;
 import burp.api.montoya.http.message.params.HttpParameterType;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
+import me.doqbu.template.Template;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -44,12 +45,12 @@ public class Request {
 
         ContentType contentType = request.contentType();
         if (contentType != ContentType.URL_ENCODED && contentType != ContentType.JSON)
-            return "\"" + CodeGenerator.escapeString(rawBody) + "\"";
+            return "\"" + Template.escapeString(rawBody) + "\"";
 
 
         List<ParsedHttpParameter> parameters;
         if (contentType == ContentType.URL_ENCODED) {
-            parameters = request.parameters(HttpParameterType.URL);
+            parameters = request.parameters(HttpParameterType.BODY);
         } else {
             parameters = request.parameters(HttpParameterType.JSON);
         }
