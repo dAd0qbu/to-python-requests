@@ -8,6 +8,8 @@ import burp.api.montoya.http.message.requests.HttpRequest;
 import me.doqbu.template.Template;
 
 import java.lang.reflect.Field;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +64,10 @@ public class Request {
             }
         };
         for (ParsedHttpParameter parameter : parameters) {
-            data.put(parameter.name(), parameter.value());
+            String dataUrlDecoded = URLDecoder.decode(parameter.value(), StandardCharsets.UTF_8);
+            // Python requests library automatically encodes the data parameter if it iterables
+            // https://github.com/psf/requests/blob/1764cc938efc3cc9720188dfa6c3852c45211aa0/src/requests/models.py#L132
+            data.put(parameter.name(), dataUrlDecoded);
         }
 
         return data.isEmpty() ? null : data.toString();
